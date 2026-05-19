@@ -6,73 +6,161 @@ function App() {
   const [result, setResult] = useState(null);
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-  
+
     const response = await fetch("http://localhost:5050/api/analyze", {
-  
       method: "POST",
-  
       headers: {
-  
         "Content-Type": "application/json",
-  
       },
-  
       body: JSON.stringify({ resume, jobDescription }),
-  
     });
-  
+
     const data = await response.json();
     setResult(data);
-  
+  };
+
+  const styles = {
+    page: {
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #e5e7eb, #f9fafb)",
+      padding: "40px",
+      fontFamily: "Arial, sans-serif",
+    },
+    card: {
+      maxWidth: "900px",
+      margin: "0 auto",
+      background: "white",
+      padding: "40px",
+      borderRadius: "20px",
+      boxShadow: "0 15px 40px rgba(0, 0, 0, 0.12)",
+    },
+    title: {
+      fontSize: "42px",
+      fontWeight: "bold",
+      textAlign: "center",
+      marginBottom: "10px",
+    },
+    subtitle: {
+      textAlign: "center",
+      color: "#555",
+      marginBottom: "30px",
+      fontSize: "18px",
+    },
+    label: {
+      display: "block",
+      fontWeight: "bold",
+      marginBottom: "8px",
+      fontSize: "18px",
+    },
+    textarea: {
+      width: "100%",
+      padding: "16px",
+      borderRadius: "12px",
+      border: "1px solid #ccc",
+      fontSize: "16px",
+      marginBottom: "24px",
+      boxSizing: "border-box",
+    },
+    button: {
+      background: "#111827",
+      color: "white",
+      padding: "14px 24px",
+      border: "none",
+      borderRadius: "12px",
+      fontSize: "16px",
+      fontWeight: "bold",
+      cursor: "pointer",
+    },
+    results: {
+      marginTop: "35px",
+      background: "#f3f4f6",
+      border: "1px solid #ddd",
+      padding: "25px",
+      borderRadius: "16px",
+    },
+    skill: {
+      display: "inline-block",
+      padding: "8px 12px",
+      borderRadius: "999px",
+      margin: "5px",
+      background: "#d1fae5",
+      color: "#065f46",
+      fontWeight: "bold",
+    },
+    missingSkill: {
+      display: "inline-block",
+      padding: "8px 12px",
+      borderRadius: "999px",
+      margin: "5px",
+      background: "#fee2e2",
+      color: "#991b1b",
+      fontWeight: "bold",
+    },
   };
 
   return (
-    <div style={{ padding: "40px", fontFamily: "Arial" }}>
-      <h1>AI Resume Job Match App</h1>
-      <p>Compare your resume to a job description and get feedback.</p>
+    <div style={styles.page}>
+      <div style={styles.card}>
+        <h1 style={styles.title}>ResumeMatch AI</h1>
+        <p style={styles.subtitle}>
+          Compare your resume to a job description using AI-style matching.
+        </p>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <h3>Resume</h3>
+        <form onSubmit={handleSubmit}>
+          <label style={styles.label}>Resume</label>
           <textarea
             rows="8"
-            cols="60"
             value={resume}
             onChange={(e) => setResume(e.target.value)}
-            placeholder="Paste your resume here"
+            placeholder="Paste your resume here..."
+            style={styles.textarea}
           />
-        </div>
 
-        <div>
-          <h3>Job Description</h3>
+          <label style={styles.label}>Job Description</label>
           <textarea
             rows="8"
-            cols="60"
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
-            placeholder="Paste the job description here"
+            placeholder="Paste the job description here..."
+            style={styles.textarea}
           />
-        </div>
 
-        <button type="submit">Analyze</button>
-      </form>
+          <button type="submit" style={styles.button}>
+            Analyze Resume
+          </button>
+        </form>
 
-      {result && (
-        <div style={{ marginTop: "30px", padding: "20px", border: "1px solid #ccc" }}>
-          <h2>Analysis Results</h2>
-          <p><strong>Message:</strong> {result.message}</p>
-          <p><strong>Match Score:</strong> {result.matchScore}%</p>
-          <p><strong>Feedback:</strong> {result.feedback}</p>
-          <h3>Missing Skills</h3>
-          <ul>
-            {result.missingSkills.map((skill, index) => (
-              <li key={index}>{skill}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+        {result && (
+          <div style={styles.results}>
+            <h2>Analysis Results</h2>
+            <p>
+              <strong>Match Score:</strong> {result.matchScore}%
+            </p>
+            <p>
+              <strong>Feedback:</strong> {result.feedback}
+            </p>
+
+            <h3>Matched Skills</h3>
+            <div>
+              {result.matchedSkills?.map((skill, index) => (
+                <span key={index} style={styles.skill}>
+                  {skill}
+                </span>
+              ))}
+            </div>
+
+            <h3>Missing Skills</h3>
+            <div>
+              {result.missingSkills?.map((skill, index) => (
+                <span key={index} style={styles.missingSkill}>
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
