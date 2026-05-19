@@ -4,6 +4,26 @@ function App() {
   const [resume, setResume] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [result, setResult] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+
+  const loadHistory = async () => {
+    const response = await fetch("http://localhost:5050/api/history");
+    const data = await response.json();
+    setHistory(data);
+    setHistoryLoaded(true);
+  };
+
+  const selectHistoryItem = (item) => {
+    setResult({
+      matchScore: item.matchScore,
+      feedback: item.feedback,
+      matchedSkills: item.matchedSkills,
+      missingSkills: item.missingSkills,
+    });
+    setResume(item.resume || "");
+    setJobDescription(item.jobDescription || "");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,6 +117,40 @@ function App() {
       color: "#991b1b",
       fontWeight: "bold",
     },
+    historySection: {
+      marginTop: "35px",
+      paddingTop: "30px",
+      borderTop: "1px solid #e5e7eb",
+    },
+    historyButton: {
+      background: "#374151",
+      color: "white",
+      padding: "14px 24px",
+      border: "none",
+      borderRadius: "12px",
+      fontSize: "16px",
+      fontWeight: "bold",
+      cursor: "pointer",
+      marginBottom: "20px",
+    },
+    historyList: {
+      listStyle: "none",
+      padding: 0,
+      margin: 0,
+    },
+    historyItem: {
+      background: "#f9fafb",
+      border: "1px solid #e5e7eb",
+      borderRadius: "12px",
+      padding: "16px 20px",
+      marginBottom: "12px",
+      cursor: "pointer",
+    },
+    historyMeta: {
+      color: "#6b7280",
+      fontSize: "14px",
+      marginTop: "6px",
+    },
   };
 
   return (
@@ -130,6 +184,39 @@ function App() {
             Analyze Resume
           </button>
         </form>
+
+        <div style={styles.historySection}>
+          <button type="button" onClick={loadHistory} style={styles.historyButton}>
+            Load History
+          </button>
+
+          {history.length > 0 && (
+            <>
+              <h2>Previous Analyses</h2>
+              <ul style={styles.historyList}>
+                {history.map((item) => (
+                  <li
+                    key={item._id}
+                    style={styles.historyItem}
+                    onClick={() => selectHistoryItem(item)}
+                  >
+                    <strong>Match Score: {item.matchScore}%</strong>
+                    <div style={styles.historyMeta}>
+                      {new Date(item.createdAt).toLocaleString()}
+                    </div>
+                    <div style={styles.historyMeta}>
+                      {item.feedback}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {historyLoaded && history.length === 0 && (
+            <p style={{ color: "#6b7280" }}>No saved analyses yet.</p>
+          )}
+        </div>
 
         {result && (
           <div style={styles.results}>
